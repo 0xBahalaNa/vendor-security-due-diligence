@@ -1,0 +1,90 @@
+# Vendor due-diligence checklist → control crosswalk
+# Weights sum to 100 across all items.
+# Cloud-only items (VDD-09, VDD-10) carry 16 points; normalize the
+# denominator to 84 when a vendor is not a cloud/SaaS provider.
+#
+# SOC 2 note (AICPA 2017 TSC): CC9.2 = vendor/business-partner risk.
+# CC9.1 = business-disruption risk mitigation (BCP/DR) — intentionally
+# not mapped here; it is outside a vendor due-diligence checklist.
+
+checklist:
+  # --- Risk identification: what data, where, for how long -------------------
+  - id: VDD-01
+    checklist_item: "What customer data will you access, process, or store on our behalf — including data types, storage locations or regions, retention periods, and any secondary use such as analytics or model training?"
+    controls:
+      - SOC2-CC9.2
+      - ISO27001-A.5.19
+    weight: 14
+
+  # --- Risk mitigation: independent assurance on file ------------------------
+  # ISO anchor: A.5.22 — current certs are ongoing supplier-service
+  # monitoring / periodic assurance evidence, not just relationship setup.
+  - id: VDD-02
+    checklist_item: "Can you provide a current SOC 2 Type II report (or ISO 27001 certificate plus Statement of Applicability) covering the services in scope, dated within the last 12 months, along with a bridge letter for any gap period?"
+    controls:
+      - SOC2-CC9.2
+      - ISO27001-A.5.22
+    weight: 14
+
+  # --- Security terms in the agreement itself --------------------------------
+  - id: VDD-03
+    checklist_item: "Does your standard agreement include security obligations — confidentiality, a defined breach notification window, our right to request audit evidence, and secure return or deletion of our data at termination — or will you accept ours?"
+    controls:
+      - ISO27001-A.5.20
+      - SOC2-CC9.2
+    weight: 12
+
+  # --- External security rating (BitSight-style stand-in) --------------------
+  - id: VDD-04
+    checklist_item: "What is your current external security rating tier (A–F stand-in for BitSight or equivalent), and can you share the rating date plus any open critical findings you are remediating?"
+    controls:
+      - SOC2-CC9.2
+      - ISO27001-A.5.22
+    weight: 10
+
+  # --- ICT supply chain / sub-processors ------------------------------------
+  - id: VDD-05
+    checklist_item: "Which sub-processors or fourth parties will process our data or support the in-scope service, and do you notify customers before adding or replacing material sub-processors?"
+    controls:
+      - SOC2-CC9.2
+      - ISO27001-A.5.21
+    weight: 12
+
+  # --- Access / encryption for data in your custody -------------------------
+  - id: VDD-06
+    checklist_item: "How is our data protected in transit and at rest (encryption standards), and how is access limited to least-privilege roles with MFA for administrative access?"
+    controls:
+      - SOC2-CC9.2
+      - ISO27001-A.5.19
+    weight: 8
+
+  # --- Ongoing monitoring / periodic review ---------------------------------
+  - id: VDD-07
+    checklist_item: "What is your cadence for security reviews or customer assurance updates (e.g., annual SOC 2, questionnaire refresh), and will you support our periodic vendor reassessment?"
+    controls:
+      - ISO27001-A.5.22
+    weight: 8
+
+  # --- Material change / incident notification ------------------------------
+  - id: VDD-08
+    checklist_item: "Will you notify us of material security incidents affecting our data, and of material changes to the service, security controls, or sub-processor list, within an agreed window?"
+    controls:
+      - ISO27001-A.5.22
+      - ISO27001-A.5.20
+    weight: 6
+
+  # --- Cloud: shared responsibility / security posture (cloud/SaaS only) ----
+  - id: VDD-09
+    checklist_item: "For cloud/SaaS delivery: can you document the shared-responsibility model for the service (what you secure vs. what we configure), including identity, network, and data-plane controls?"
+    controls:
+      - ISO27001-A.5.23
+    weight: 8
+    applies_to: cloud_saas_only
+
+  # --- Cloud: residency, tenancy, customer control of keys ------------------
+  - id: VDD-10
+    checklist_item: "For cloud/SaaS delivery: can you confirm data residency options, tenancy isolation model (shared vs. dedicated), and whether customers can bring or control encryption keys for data at rest?"
+    controls:
+      - ISO27001-A.5.23
+    weight: 8
+    applies_to: cloud_saas_only
