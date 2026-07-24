@@ -32,9 +32,9 @@ A vendor intake record is scored against a weighted rule set derived from the cr
 
 | SOC 2 | ISO 27001:2022 | How This Repo Validates |
 |---|---|---|
-| CC9.1 | A.5.19, A.5.20 | Intake schema requires vendor risk-identification fields (data processed, storage location, supplier agreement terms) before scoring can run |
-| CC9.2 | A.5.21, A.5.22 | Risk-tier output is the documented mitigation decision — the memo records why a vendor scored Low/Medium/High |
-| — | A.5.23 | Cloud-service-specific checklist item scores cloud vendors on security posture disclosure, not just general supplier terms |
+| CC9.2 | A.5.19–A.5.22 | Checklist items score vendor/business-partner risk: data handling, certs on file, agreement terms, sub-processors, external rating, and ongoing monitoring (AICPA TSC: CC9.2) |
+| — | A.5.23 | Cloud/SaaS-only items (VDD-09, VDD-10) score shared-responsibility and residency/tenancy/key control disclosure |
+| CC9.1 | — | Intentionally not mapped — AICPA CC9.1 is business-disruption / BCP-DR risk mitigation, not vendor risk |
 
 ## How an Auditor Uses This Output
 
@@ -56,7 +56,7 @@ An auditor reviewing SOC 2 CC9 or ISO 27001:2022 Annex A supplier-relationship e
   "score": 62,
   "certifications_on_file": ["SOC 2 Type II"],
   "external_rating_tier": "B",
-  "controls_referenced": ["SOC2-CC9.1", "SOC2-CC9.2", "ISO27001-A.5.19", "ISO27001-A.5.21"],
+  "controls_referenced": ["SOC2-CC9.2", "ISO27001-A.5.19", "ISO27001-A.5.21", "ISO27001-A.5.22"],
   "flagged_gaps": ["No ISO 27001 certification on file"]
 }
 ```
