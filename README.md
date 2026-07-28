@@ -9,13 +9,11 @@ A vendor risk crosswalk and scoring tool for evaluating third-party SaaS vendors
 
 > **Status:** v1.0 shipped — crosswalk + intake-based risk scorer + audit-ready memo and evidence output.
 
-## Why This Exists
+## Overview
 
-Security assurance teams onboarding new vendors need more than a gut check on a SOC 2 report and a BitSight score — they need a repeatable, auditable method for turning vendor due-diligence inputs into a risk tier and an onboarding decision. This repo models that decision as structured data: independent certifications on file, external security rating tier, and data-handling profile go in; a Low/Medium/High risk tier and a markdown due-diligence memo come out, with a JSON evidence record for the audit trail.
+Security assurance teams onboarding new vendors need more than a gut check on a SOC 2 report and an external rating — they need a repeatable, auditable method for turning vendor due-diligence inputs into a risk tier and an onboarding decision. This repo models that decision as structured data: independent certifications on file, external security rating tier, and data-handling profile go in; a Low/Medium/High risk tier and a markdown due-diligence memo come out, with a JSON evidence record for the audit trail.
 
-Built while preparing for a Senior Security Assurance Analyst role whose "Vendor Management (Security Assurance)" responsibility names exactly this workflow — security due diligence on new and existing vendors, evaluating data handling, independent certifications, and external ratings like BitSight to support onboarding decisions.
-
-## Architecture Overview
+## Architecture
 
 ```mermaid
 graph TD
