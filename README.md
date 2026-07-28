@@ -7,7 +7,7 @@
 
 A vendor risk crosswalk and scoring tool for evaluating third-party SaaS vendors against SOC 2 and ISO 27001:2022 supplier-relationship controls — turning "do they have a SOC 2 report and a decent external security rating" into a documented, repeatable risk-tier decision.
 
-> **Status:** v1.0 in development. Scope: crosswalk + intake-based risk scorer + audit-ready memo output.
+> **Status:** v1.0 shipped — crosswalk + intake-based risk scorer + audit-ready memo and evidence output.
 
 ## Why This Exists
 
@@ -19,14 +19,17 @@ Built while preparing for a Senior Security Assurance Analyst role whose "Vendor
 
 ```mermaid
 graph TD
-    A[Vendor intake record<br/>YAML: certs on file, data handling, rating tier] --> B[Crosswalk lookup<br/>SOC 2 CC9 + ISO 27001:2022 A.5.19-A.5.23]
-    B --> C[Weighted risk scorer]
-    C --> D[Risk tier: Low / Medium / High]
-    C --> E[Markdown due-diligence memo]
-    C --> F[JSON evidence record]
+    A[Vendor intake record<br/>YAML: data handling, questionnaire responses] --> B[Inherent risk axis<br/>data_classification + production_access]
+    A --> C[Crosswalk checklist<br/>SOC 2 CC9.2 + ISO 27001:2022 A.5.19-A.5.23]
+    C --> D[Assurance score<br/>graded credit / applicable weight]
+    B --> E[Residual tier matrix<br/>inherent × assurance]
+    D --> E
+    E --> F[Risk tier: Low / Medium / High]
+    E --> G[Markdown due-diligence memo]
+    E --> H[JSON evidence record]
 ```
 
-A vendor intake record is scored against a weighted rule set derived from the crosswalk — each checklist item maps back to a specific SOC 2 or ISO 27001:2022 control. The scorer emits both a human-readable memo (for the onboarding decision conversation) and a machine-readable JSON record (for the audit trail).
+Scoring is **two-axis**, not one blended number. The data-handling profile sets **inherent risk** (what is at stake if the vendor fails). The weighted checklist sets **assurance** (how much confidence the due-diligence answers provide). A config-driven matrix in `crosswalk.yaml` resolves the **residual tier**. Each checklist item maps back to SOC 2 CC9.2 and/or ISO 27001:2022 Annex A controls. The scorer emits both a human-readable memo (for the onboarding decision) and a machine-readable JSON record (for the audit trail).
 
 ## Compliance Controls Addressed
 
@@ -38,28 +41,63 @@ A vendor intake record is scored against a weighted rule set derived from the cr
 
 ## How an Auditor Uses This Output
 
-An auditor reviewing SOC 2 CC9 or ISO 27001:2022 Annex A supplier-relationship evidence can pull the JSON evidence record directly — each vendor's risk tier, the certifications on file at time of assessment, and the checklist items that drove the score are captured without manual transcription from an email thread or spreadsheet. The markdown memo is the human-facing artifact for the onboarding decision itself; the JSON record is what gets retained and re-reviewed at the next annual vendor reassessment cycle.
+An auditor reviewing SOC 2 CC9 or ISO 27001:2022 Annex A supplier-relationship evidence can pull the JSON evidence record directly — inherent risk, assurance band, residual tier, certifications on file at time of assessment, and structured gap records are captured without manual transcription from an email thread or spreadsheet. The markdown memo is the human-facing artifact for the onboarding decision itself; the JSON record is what gets retained and re-reviewed at the next annual vendor reassessment cycle.
 
 ## Audit & Assurance Alignment
 
 - **Repeatable evidence, not ad hoc judgment calls:** every vendor scored through this tool produces the same structured evidence record, regardless of who ran the assessment.
-- **Deterministic scoring:** identical intake data always produces the same tier and memo — no hidden judgment calls buried in an unrecorded conversation.
+- **Deterministic scoring:** identical intake data always produces the same tier and memo — no hidden judgment calls buried in an unrecorded conversation. Only `metadata.generated_at` varies between runs.
 - **Reassessment-ready:** the JSON evidence record is designed to be diffed against a prior assessment of the same vendor, supporting periodic (e.g., annual) vendor risk re-review.
 
 ## Sample Evidence Output
 
+Trimmed excerpt from `python score_vendor.py --intake sample_vendor.yaml` (full `item_results` omitted). `metadata.generated_at` is wall-clock only and omitted here.
+
 ```json
 {
-  "vendor": "example-vendor",
-  "assessed_date": "2026-08-01",
+  "vendor": "Acme Cloud Analytics, Inc.",
+  "assessed_date": "2026-07-27",
+  "is_cloud_saas": true,
+  "excluded_items": [],
+  "inherent_risk": "Medium",
+  "assurance_score": 78,
+  "assurance_percent": 78.0,
+  "assurance_band": "Adequate",
   "risk_tier": "Medium",
-  "score": 62,
-  "certifications_on_file": ["SOC 2 Type II"],
-  "external_rating_tier": "B",
-  "controls_referenced": ["SOC2-CC9.2", "ISO27001-A.5.19", "ISO27001-A.5.21", "ISO27001-A.5.22"],
-  "flagged_gaps": ["No ISO 27001 certification on file"]
+  "earned_points": 78.0,
+  "applicable_points": 100,
+  "certifications_on_file": ["ISO 27001"],
+  "external_rating_tier": "C",
+  "controls_referenced": [
+    "SOC2-CC9.2",
+    "ISO27001-A.5.19",
+    "ISO27001-A.5.22",
+    "ISO27001-A.5.20",
+    "ISO27001-A.5.21",
+    "ISO27001-A.5.23"
+  ],
+  "flagged_gaps": [
+    {
+      "id": "VDD-02",
+      "credit": 0.8,
+      "weight": 14,
+      "controls": ["SOC2-CC9.2", "ISO27001-A.5.22"]
+    },
+    {
+      "id": "VDD-04",
+      "credit": 0.5,
+      "weight": 10,
+      "controls": ["SOC2-CC9.2", "ISO27001-A.5.22"]
+    }
+  ],
+  "metadata": {
+    "model": "inherent_x_assurance",
+    "tool": "score_vendor.py"
+  }
 }
 ```
+
+The high-risk sample (`sample_vendor_high_risk.yaml`, non-cloud) produces residual **High** with assurance **Weak** — `assurance_score` 28 from 23.3 of 84 earned points (CLI: `Weak (28/100, denom=84)`) with `excluded_items: ["VDD-09", "VDD-10"]`.
 
 ## Requirements
 
@@ -69,19 +107,25 @@ An auditor reviewing SOC 2 CC9 or ISO 27001:2022 Annex A supplier-relationship e
 ## Usage
 
 ```bash
+pip install -r requirements.txt
 python score_vendor.py --intake sample_vendor.yaml
+python score_vendor.py --intake sample_vendor_high_risk.yaml --out-dir /tmp/vdd-high
 ```
 
-Outputs a due-diligence memo (`memo.md`) and a JSON evidence record (`evidence.json`) for the scored vendor.
+Optional flags: `--crosswalk crosswalk.yaml` (default: `./crosswalk.yaml`), `--out-dir .` (default: current directory).
+
+Outputs a due-diligence memo (`memo.md`) and a JSON evidence record (`evidence.json`) for the scored vendor. Incomplete intake records fail loud (exit 2) — the tool does not emit a tier from partial answers.
 
 ## Repository Structure
 
 ```
 vendor-security-due-diligence/
-├── crosswalk.yaml           # SOC 2 CC9 + ISO 27001:2022 A.5.19-A.5.23 due-diligence checklist
-├── score_vendor.py          # Intake record -> risk tier + memo + evidence record
-├── sample_vendor.yaml       # Example vendor intake record
-├── LICENSE.txt
+├── crosswalk.yaml                 # Due-diligence checklist + scoring policy (inherent × assurance)
+├── score_vendor.py                # Intake record → residual tier + memo + evidence
+├── sample_vendor.yaml             # Cloud/SaaS mid-range sample (denom 100)
+├── sample_vendor_high_risk.yaml   # Non-cloud high-risk sample (denom 84)
+├── requirements.txt
+├── LICENSE
 └── README.md
 ```
 
@@ -93,7 +137,7 @@ vendor-security-due-diligence/
 
 ## What This Project Demonstrates
 
-Cross-framework crosswalk construction (SOC 2 ↔ ISO 27001:2022) applied to third-party vendor risk — the same methodology as this portfolio's federal cross-framework work (NIST 800-53 ↔ FedRAMP ↔ CJIS v6.0), retargeted at a commercial security assurance vendor-management workflow. Demonstrates translating a compliance requirement into a deterministic, auditable scoring model rather than an unstructured judgment call.
+Cross-framework crosswalk construction (SOC 2 ↔ ISO 27001:2022) applied to third-party vendor risk — the same methodology as this portfolio's federal cross-framework work, retargeted at a commercial security assurance vendor-management workflow. The scorer separates **inherent risk** (data-handling profile) from **control assurance** (graded checklist credit) and resolves a defensible residual tier through a config-driven matrix, producing deterministic audit-ready evidence rather than an unstructured judgment call.
 
 ## References
 
@@ -102,4 +146,4 @@ Cross-framework crosswalk construction (SOC 2 ↔ ISO 27001:2022) applied to thi
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
