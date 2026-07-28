@@ -6,6 +6,10 @@
 # SOC 2 note (AICPA 2017 TSC): CC9.2 = vendor/business-partner risk.
 # CC9.1 = business-disruption risk mitigation (BCP/DR) — intentionally
 # not mapped here; it is outside a vendor due-diligence checklist.
+#
+# Scorer linkage (issue #2): each item has intake_field + score_map
+# (graded 0.0–1.0 credit). Global inherent/band/matrix policy lives under
+# scoring: — do not hardcode an id→field if/elif map in score_vendor.py.
 
 checklist:
   # --- Risk identification: what data, where, for how long -------------------
@@ -15,6 +19,11 @@ checklist:
       - SOC2-CC9.2
       - ISO27001-A.5.19
     weight: 14
+    intake_field: data_scope_disclosure
+    score_map:
+      full: 1.0
+      partial: 0.5
+      none: 0.0
 
   # --- Risk mitigation: independent assurance on file ------------------------
   # ISO anchor: A.5.22 — current certs are ongoing supplier-service
@@ -25,6 +34,12 @@ checklist:
       - SOC2-CC9.2
       - ISO27001-A.5.22
     weight: 14
+    intake_field: independent_assurance
+    score_map:
+      soc2_type_ii_current: 1.0
+      iso27001_only: 0.8
+      soc2_type_ii_stale: 0.5 # >12 month or gap period with no bridge letter
+      none: 0.0
 
   # --- Security terms in the agreement itself --------------------------------
   - id: VDD-03
@@ -33,6 +48,11 @@ checklist:
       - ISO27001-A.5.20
       - SOC2-CC9.2
     weight: 12
+    intake_field: security_agreement_terms
+    score_map:
+      accepts_ours_or_includes: 1.0
+      partial: 0.5
+      none: 0.0
 
   # --- External security rating (BitSight-style stand-in) --------------------
   - id: VDD-04
@@ -41,6 +61,13 @@ checklist:
       - SOC2-CC9.2
       - ISO27001-A.5.22
     weight: 10
+    intake_field: external_rating_tier
+    score_map:
+      A: 1.0
+      B: 0.8
+      C: 0.5
+      D: 0.25
+      F: 0.0
 
   # --- ICT supply chain / sub-processors ------------------------------------
   - id: VDD-05
@@ -49,6 +76,11 @@ checklist:
       - SOC2-CC9.2
       - ISO27001-A.5.21
     weight: 12
+    intake_field: subprocessors_disclosure
+    score_map:
+      full_with_notification: 1.0
+      list_only: 0.6
+      none: 0.0
 
   # --- Access / encryption for data in your custody -------------------------
   - id: VDD-06
@@ -57,34 +89,92 @@ checklist:
       - SOC2-CC9.2
       - ISO27001-A.5.19
     weight: 8
+    intake_field: data_protection_controls
+    score_map:
+      encryption_and_mfa: 1.0
+      encryption_only: 0.6
+      none: 0.0
 
   # --- Ongoing monitoring / periodic review ---------------------------------
   - id: VDD-07
     checklist_item: "What is your cadence for security reviews or customer assurance updates (e.g., annual SOC 2, questionnaire refresh), and will you support our periodic vendor reassessment?"
     controls:
+      - SOC2-CC9.2
       - ISO27001-A.5.22
     weight: 8
+    intake_field: reassessment_support
+    score_map:
+      annual_plus_adhoc: 1.0
+      annual_only: 0.7
+      none: 0.0
 
   # --- Material change / incident notification ------------------------------
   - id: VDD-08
     checklist_item: "Will you notify us of material security incidents affecting our data, and of material changes to the service, security controls, or sub-processor list, within an agreed window?"
     controls:
+      - SOC2-CC9.2
       - ISO27001-A.5.22
       - ISO27001-A.5.20
     weight: 6
+    intake_field: incident_change_notification
+    score_map:
+      agreed_window: 1.0
+      best_effort: 0.5
+      none: 0.0
 
   # --- Cloud: shared responsibility / security posture (cloud/SaaS only) ----
   - id: VDD-09
     checklist_item: "For cloud/SaaS delivery: can you document the shared-responsibility model for the service (what you secure vs. what we configure), including identity, network, and data-plane controls?"
     controls:
+      - SOC2-CC9.2
       - ISO27001-A.5.23
     weight: 8
     applies_to: cloud_saas_only
+    intake_field: shared_responsibility_doc
+    score_map:
+      documented: 1.0
+      partial: 0.5
+      none: 0.0
 
   # --- Cloud: residency, tenancy, customer control of keys ------------------
   - id: VDD-10
     checklist_item: "For cloud/SaaS delivery: can you confirm data residency options, tenancy isolation model (shared vs. dedicated), and whether customers can bring or control encryption keys for data at rest?"
     controls:
+      - SOC2-CC9.2
       - ISO27001-A.5.23
     weight: 8
     applies_to: cloud_saas_only
+    intake_field: residency_tenancy_keys
+    score_map:
+      full: 1.0
+      partial: 0.5
+      none: 0.0
+
+# Global scoring policy (inherent risk × assurance band → residual tier).
+# Config, not code — splitting to risk_model.yaml is a Future Enhancement.
+scoring:
+  inherent_risk:
+    data_classification:
+      regulated_pii: High
+      confidential: Medium
+      internal: Low
+      none: Low
+    escalate_one_tier_if:
+      production_access: true
+  assurance_bands:
+    Strong: 85        # >= 85
+    Adequate: 65      # 65–84
+    # Weak: < 65 (implicit floor)
+  residual_tier_matrix:
+    High:
+      Strong: Medium
+      Adequate: High
+      Weak: High
+    Medium:
+      Strong: Low
+      Adequate: Medium
+      Weak: High
+    Low:
+      Strong: Low
+      Adequate: Low
+      Weak: Medium
