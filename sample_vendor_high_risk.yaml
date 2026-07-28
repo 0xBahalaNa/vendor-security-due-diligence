@@ -1,0 +1,18 @@
+# High-risk non-cloud sample — regulated PII + production access.
+# Exercises the runtime 84-pt denominator (VDD-09/10 filtered out).
+# Expected: inherent High × assurance Weak → residual High.
+vendor: "Legacy Payroll Systems LLC"
+assessed_date: "2026-07-27"
+is_cloud_saas: false
+data_handling:
+  data_classification: regulated_pii
+  production_access: true
+responses:
+  data_scope_disclosure: partial
+  independent_assurance: none
+  security_agreement_terms: partial
+  external_rating_tier: D
+  subprocessors_disclosure: none
+  data_protection_controls: encryption_only
+  reassessment_support: none
+  incident_change_notification: best_effort

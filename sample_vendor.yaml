@@ -1,0 +1,19 @@
+# Mid-range cloud/SaaS sample — confidential data, no production access.
+# Expected: inherent Medium × assurance Adequate → residual Medium.
+vendor: "Acme Cloud Analytics, Inc."
+assessed_date: "2026-07-27"
+is_cloud_saas: true
+data_handling:
+  data_classification: confidential
+  production_access: false
+responses:
+  data_scope_disclosure: full
+  independent_assurance: iso27001_only
+  security_agreement_terms: accepts_ours_or_includes
+  external_rating_tier: C
+  subprocessors_disclosure: list_only
+  data_protection_controls: encryption_and_mfa
+  reassessment_support: annual_only
+  incident_change_notification: best_effort
+  shared_responsibility_doc: documented
+  residency_tenancy_keys: partial
