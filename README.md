@@ -5,13 +5,13 @@
 
 # Vendor Security Due Diligence
 
-A vendor risk crosswalk and scoring tool for evaluating third-party SaaS vendors against SOC 2 and ISO 27001:2022 supplier-relationship controls — turning "do they have a SOC 2 report and a decent external security rating" into a documented, repeatable risk-tier decision.
+I score third-party SaaS vendors against SOC 2 and ISO 27001:2022 supplier-relationship controls. Independent certifications on file, external security rating tier, and data-handling profile go in. A Low/Medium/High risk tier, a markdown due-diligence memo, and a JSON evidence record come out. The point is a documented, repeatable risk-tier decision instead of "they have a SOC 2 report and a decent external rating."
 
-> **Status:** v1.0 shipped — crosswalk + intake-based risk scorer + audit-ready memo and evidence output.
+> **Status:** v1.0 shipped. Crosswalk + intake-based risk scorer + audit-ready memo and evidence output.
 
 ## Overview
 
-Security assurance teams onboarding new vendors need more than a gut check on a SOC 2 report and an external rating — they need a repeatable, auditable method for turning vendor due-diligence inputs into a risk tier and an onboarding decision. This repo models that decision as structured data: independent certifications on file, external security rating tier, and data-handling profile go in; a Low/Medium/High risk tier and a markdown due-diligence memo come out, with a JSON evidence record for the audit trail.
+Security assurance teams onboarding new vendors need more than a gut check on a SOC 2 report and an external rating. They need a repeatable, auditable method for turning vendor due-diligence inputs into a risk tier and an onboarding decision. This repo models that decision as structured data.
 
 ## Architecture
 
@@ -34,18 +34,18 @@ Scoring is **two-axis**, not one blended number. The data-handling profile sets 
 | SOC 2 | ISO 27001:2022 | How This Repo Validates |
 |---|---|---|
 | CC9.2 | A.5.19–A.5.22 | Checklist items score vendor/business-partner risk: data handling, certs on file, agreement terms, sub-processors, external rating, and ongoing monitoring (AICPA TSC: CC9.2) |
-| — | A.5.23 | Cloud/SaaS-only items (VDD-09, VDD-10) score shared-responsibility and residency/tenancy/key control disclosure |
-| CC9.1 | — | Intentionally not mapped — AICPA CC9.1 is business-disruption / BCP-DR risk mitigation, not vendor risk |
+| *(none)* | A.5.23 | Cloud/SaaS-only items (VDD-09, VDD-10) score shared-responsibility and residency/tenancy/key control disclosure |
+| CC9.1 | *(none)* | Intentionally not mapped. AICPA CC9.1 is business-disruption / BCP-DR risk mitigation, not vendor risk |
 
 ## How an Auditor Uses This Output
 
-An auditor reviewing SOC 2 CC9 or ISO 27001:2022 Annex A supplier-relationship evidence can pull the JSON evidence record directly — inherent risk, assurance band, residual tier, certifications on file at time of assessment, and structured gap records are captured without manual transcription from an email thread or spreadsheet. The markdown memo is the human-facing artifact for the onboarding decision itself; the JSON record is what gets retained and re-reviewed at the next annual vendor reassessment cycle.
+An auditor reviewing SOC 2 CC9 or ISO 27001:2022 Annex A supplier-relationship evidence can pull the JSON evidence record directly. Inherent risk, assurance band, residual tier, certifications on file at time of assessment, and structured gap records are captured without manual transcription from an email thread or spreadsheet. The markdown memo is the human-facing artifact for the onboarding decision itself; the JSON record is what gets retained and re-reviewed at the next annual vendor reassessment cycle.
 
 ## Audit & Assurance Alignment
 
-- **Repeatable evidence, not ad hoc judgment calls:** every vendor scored through this tool produces the same structured evidence record, regardless of who ran the assessment.
-- **Deterministic scoring:** identical intake data always produces the same tier and memo — no hidden judgment calls buried in an unrecorded conversation. Only `metadata.generated_at` varies between runs.
-- **Reassessment-ready:** the JSON evidence record is designed to be diffed against a prior assessment of the same vendor, supporting periodic (e.g., annual) vendor risk re-review.
+- Every vendor scored through this tool produces the same structured evidence record, regardless of who ran the assessment.
+- Identical intake data always produces the same tier and memo. No hidden judgment calls buried in an unrecorded conversation. Only `metadata.generated_at` varies between runs.
+- The JSON evidence record is designed to be diffed against a prior assessment of the same vendor, supporting periodic (e.g., annual) vendor risk re-review.
 
 ## Sample Evidence Output
 
@@ -95,7 +95,7 @@ Trimmed excerpt from `python score_vendor.py --intake sample_vendor.yaml` (full 
 }
 ```
 
-The high-risk sample (`sample_vendor_high_risk.yaml`, non-cloud) produces residual **High** with assurance **Weak** — `assurance_score` 28 from 23.3 of 84 earned points (CLI: `Weak (28/100, denom=84)`) with `excluded_items: ["VDD-09", "VDD-10"]`.
+The high-risk sample (`sample_vendor_high_risk.yaml`, non-cloud) produces residual **High** with assurance **Weak**: `assurance_score` 28 from 23.3 of 84 earned points (CLI: `Weak (28/100, denom=84)`) with `excluded_items: ["VDD-09", "VDD-10"]`.
 
 ## Requirements
 
@@ -112,7 +112,7 @@ python score_vendor.py --intake sample_vendor_high_risk.yaml --out-dir /tmp/vdd-
 
 Optional flags: `--crosswalk crosswalk.yaml` (default: `./crosswalk.yaml`), `--out-dir .` (default: current directory).
 
-Outputs a due-diligence memo (`memo.md`) and a JSON evidence record (`evidence.json`) for the scored vendor. Incomplete intake records fail loud (exit 2) — the tool does not emit a tier from partial answers.
+Outputs a due-diligence memo (`memo.md`) and a JSON evidence record (`evidence.json`) for the scored vendor. Incomplete intake records fail loud (exit 2). The tool does not emit a tier from partial answers.
 
 ## Repository Structure
 
@@ -133,10 +133,6 @@ vendor-security-due-diligence/
 - CSA STAR self-assessment crosswalk for cloud-specific vendors
 - Batch scoring across a vendor portfolio with a summary risk-distribution report
 
-## What This Project Demonstrates
-
-Cross-framework crosswalk construction (SOC 2 ↔ ISO 27001:2022) applied to third-party vendor risk — the same methodology as this portfolio's federal cross-framework work, retargeted at a commercial security assurance vendor-management workflow. The scorer separates **inherent risk** (data-handling profile) from **control assurance** (graded checklist credit) and resolves a defensible residual tier through a config-driven matrix, producing deterministic audit-ready evidence rather than an unstructured judgment call.
-
 ## References
 
 - [AICPA SOC 2 Trust Services Criteria](https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services)
@@ -144,4 +140,4 @@ Cross-framework crosswalk construction (SOC 2 ↔ ISO 27001:2022) applied to thi
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
