@@ -9,10 +9,6 @@ I score third-party SaaS vendors against SOC 2 and ISO 27001:2022 supplier-relat
 
 > **Status:** v1.0 shipped. Crosswalk + intake-based risk scorer + audit-ready memo and evidence output.
 
-## Overview
-
-Security assurance teams onboarding new vendors need more than a gut check on a SOC 2 report and an external rating. They need a repeatable, auditable method for turning vendor due-diligence inputs into a risk tier and an onboarding decision. This repo models that decision as structured data.
-
 ## Architecture
 
 ```mermaid
