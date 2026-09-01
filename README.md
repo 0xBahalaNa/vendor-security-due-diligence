@@ -9,6 +9,12 @@ I score third-party SaaS vendors against SOC 2 and ISO 27001:2022 supplier-relat
 
 > **Status:** v1.0 shipped. Crosswalk + intake-based risk scorer + audit-ready memo and evidence output.
 
+## Impact
+
+The manual alternative is a vendor tier decided in an email thread: someone confirms a SOC 2 report is on file, glances at an external rating, and writes "Low" in a spreadsheet cell with no record of what was weighed or how. At the next annual review, the reasoning has to be reconstructed or redone.
+
+Here the same intake always produces the same tier, memo, and JSON evidence record (only the generation timestamp varies), with every checklist item mapped to the SOC 2 CC9.2 / ISO 27001 Annex A control it evidences. The re-review that used to start from scratch becomes a diff of this year's evidence record against last year's, and an incomplete intake fails loud (exit 2) instead of quietly producing a tier from partial answers.
+
 ## Architecture
 
 ```mermaid
@@ -30,7 +36,7 @@ Scoring is **two-axis**, not one blended number. The data-handling profile sets 
 | SOC 2 | ISO 27001:2022 | How This Repo Validates |
 |---|---|---|
 | CC9.2 | A.5.19–A.5.22 | Checklist items score vendor/business-partner risk: data handling, certs on file, agreement terms, sub-processors, external rating, and ongoing monitoring (AICPA TSC: CC9.2) |
-| *(none)* | A.5.23 | Cloud/SaaS-only items (VDD-09, VDD-10) score shared-responsibility and residency/tenancy/key control disclosure |
+| CC9.2 | A.5.23 | Cloud/SaaS-only items (VDD-09, VDD-10) score shared-responsibility and residency/tenancy/key control disclosure |
 | CC9.1 | *(none)* | Intentionally not mapped. AICPA CC9.1 is business-disruption / BCP-DR risk mitigation, not vendor risk |
 
 ## How an Auditor Uses This Output
