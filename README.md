@@ -5,7 +5,12 @@
 
 # Vendor Security Due Diligence
 
-I score third-party SaaS vendors against SOC 2 and ISO 27001:2022 supplier-relationship controls. Independent certifications on file, external security rating tier, and data-handling profile go in. A Low/Medium/High risk tier, a markdown due-diligence memo, and a JSON evidence record come out. The point is a documented, repeatable risk-tier decision instead of "they have a SOC 2 report and a decent external rating."
+**A vendor breach is your incident, and a vendor tier decided in an email thread cannot be defended at the next annual review or to an auditor asking what was weighed. Reconstructing that reasoning every year is paid-for rework.** This scorer produces the same tier, memo, and evidence record from the same intake every time.
+
+- Two axes: data-handling profile sets inherent risk, a weighted checklist sets assurance, and a matrix resolves the residual Low / Medium / High tier
+- Checklist items map to SOC 2 CC9.2 and ISO 27001:2022 A.5.19-A.5.23 supplier-relationship controls
+- Outputs a Markdown due-diligence memo and a JSON evidence record you can diff at re-review; an incomplete intake fails loud (exit 2)
+- Python plus PyYAML
 
 > **Status:** v1.0 shipped. Crosswalk + intake-based risk scorer + audit-ready memo and evidence output.
 
