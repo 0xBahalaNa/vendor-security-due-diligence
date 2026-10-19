@@ -121,6 +121,8 @@ Optional flags: `--crosswalk crosswalk.yaml` (default: `./crosswalk.yaml`), `--o
 
 Outputs a due-diligence memo (`memo.md`) and a JSON evidence record (`evidence.json`) for the scored vendor. Incomplete intake records fail loud (exit 2). The tool does not emit a tier from partial answers.
 
+CI runs `python -m py_compile` on every tracked `.py` file on each pull request and on each push to `main`, and installs nothing. This is a syntax floor until the repo has tests.
+
 ## Repository Structure
 
 ```
